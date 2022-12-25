@@ -20,7 +20,7 @@ def check_if_valid_data(df:pd.DataFrame) -> bool:
         print("No songs downloaded.Finishing execution.")
         return False
     
-    #Primary Key Check(确保主键是独一无二的)
+    #Primary Key Check(make sure that the promary key is unique)
     if pd.Series(df["played_at_list"]).is_unique:
         pass
     else:
@@ -72,8 +72,6 @@ if __name__=="__main__":
         played_at_list.append(song["played_at"])
         timestamps.append(song["played_at"][0:10])
 
-    #将数据处理成pandas dataframe形式
-    #先处理成字典
     song_dict={
         "song_name":song_names,
         "artist_name":artist_names,
@@ -93,10 +91,10 @@ if __name__=="__main__":
     #Load
     engine = sc.create_engine(f'postgresql://postgres:1111@localhost:5432/spotify_project',echo=True)
     #if the database doesn't exist,it will create it automatically
-    #创建连接
+    #create connection
     conn = psycopg2.connect(database="spotify_project", user="postgres", password="1111", host="localhost", port="5432")
     print("Connect successful.")
-    cursor=conn.cursor()    #通过cursor方法对数据库操作
+    cursor=conn.cursor()    #operate database
 
     sql_query='''
     CREATE TABLE IF NOT EXISTS my_played_tracks(
@@ -110,7 +108,7 @@ if __name__=="__main__":
     '''
 
     cursor.execute(sql_query)
-    conn.commit()   #向postgreSQL提交命令
+    conn.commit()   #commit to postgresql
 
     try:
         song_df.to_sql("my_played_tracks",con=engine,index=False,if_exists='append')
