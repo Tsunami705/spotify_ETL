@@ -13,8 +13,12 @@ import psycopg2
 todays_date=str(datetime.datetime.today())[0:10]
 download_limit=50
 airflow_home=os.environ.get("AIRFLOW_HOME")
-data_save_path="/home/tsunami/Desktop/de-project/airflow/spo_data_warehouse"
-token="BQAc3ktFnOcYCeu1YnuNA5zXF8-8wpOXnAu68CiF3Lgu5PpMCAqcMbBBLW-TUmzyRCAztdrnM5GNcXoS2xuSX3khB9QdjSTSDAv3JZwuUhDOPfUgfnJrSooC5gvO5owcsX0V9-mcZrhTj5nRUh0TIfnakclDvMV6e1bcR3MF6Au7VLdXAy-o3NPZSvqmEUGAfhrlQ6AB90hj"
+data_save_path="/home/tsunami/Desktop/spotify_ETL/de-project/airflow/spo_data_warehouse"
+token="BQD4oW39MoqnJmC3pT_sJBIVp-vkqG3ZC7dsMH9hYs6ogpJByCJJpMPGem7bwI7_J6GF0BmpeTKFaTVfaT-_2OGn9fj1FzmOJDZloIrl_w--jCpC7ueSVVFEZYnM21Qtg2CA7L2TUPRKDzsvl2U_Mhh76e53QJAXoFES0QH9CLpVv1kf4fQSqCVL6sQB6P1BPIgTYxZTlKoC"
+
+today=datetime.datetime.now()
+yesterday=today-datetime.timedelta(days=1)
+yesterday_unix_timestamp=int(yesterday.timestamp())*1000
 
 def run_extract(data_save_path,todays_date):
     with open(f"{data_save_path}/spo_data_{todays_date}.json",'r') as j:
@@ -120,7 +124,7 @@ with DAG(
 
     download_dataset_task = BashOperator(
         task_id='download_dataset_task',
-        bash_command=f"curl -X \"GET\" \"https://api.spotify.com/v1/me/player/recently-played?limit={download_limit}\" -H \"Accept: application/json\" -H \"Content-Type: application/json\" -H \"Authorization: Bearer {token}\" > {data_save_path}/spo_data_{todays_date}.json"
+        bash_command=f"curl -X \"GET\" \"https://api.spotify.com/v1/me/player/recently-played?limit={download_limit}&after={yesterday_unix_timestamp}\" -H \"Accept: application/json\" -H \"Content-Type: application/json\" -H \"Authorization: Bearer {token}\" > {data_save_path}/spo_data_{todays_date}.json"
     )
 
     extract_data=PythonOperator(
